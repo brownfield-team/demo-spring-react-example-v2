@@ -36,7 +36,7 @@ export default function HomePage() {
   );
 
   const onSubmitSource = async (data) => {
-    console.log(destination);
+    // console.log(destination);
     sourceMutation.mutate(data);
   }
 
@@ -50,7 +50,7 @@ export default function HomePage() {
       });
     }
     else{
-      const errorMessage = `Error Checking Destination. Ensure Organization, Repository and Project Number are all valid`;
+      const errorMessage = `Error Checking Destination. Ensure Organization and Repository are valid`;
       toast(errorMessage);
     }
   }
@@ -70,7 +70,7 @@ export default function HomePage() {
   );
 
   const onSubmitDestination = async (data) => {
-    console.log(source);
+    // console.log(source);
     destinationMutation.mutate(data);
   }
 

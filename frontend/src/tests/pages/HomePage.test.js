@@ -83,7 +83,7 @@ describe("HomePage tests", () => {
         await waitFor(() => expect(getByText("PRO_kwLOG0U47s4A11-W", {exact: false})).toBeInTheDocument());
     });
 
-    test("When you fill in the source form and click submit, returns source not found", async () => {
+    test("When you fill in the source form and click submit, returns success false", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkSource").reply(500);
 
@@ -112,7 +112,14 @@ describe("HomePage tests", () => {
     });
 
     test("When you fill in form the destination form and click submit, the right things happens", async () => {
+        const expectedDestinationInfo = {
+            org: "ucsb-cs156-w22",
+            repo: "HappierCows",
+            repositoryId: "PRO_kwLOG0U47s4A11-W",
+            success: true
+        };
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
+        axiosMock.onGet("/api/gh/checkDestination").reply(200, expectedDestinationInfo);
 
         const consoleLogMock = jest.spyOn(console, 'log').mockImplementation();
 
@@ -131,22 +138,48 @@ describe("HomePage tests", () => {
         const destinationButton = getByTestId("DestinationForm-Submit-Button");
 
 
-        fireEvent.change(destinationOrganizationField, { target: { value: 'Test destination org' } })
-        fireEvent.change(destinationRepositoryField, { target: { value: 'Test destination repo' } })
-        fireEvent.change(destinationProjectNameField, { target: { value: 'Test proj name' } })
+        fireEvent.change(destinationOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
+        fireEvent.change(destinationRepositoryField, { target: { value: 'HappierCows' } })
+        fireEvent.change(destinationProjectNameField, { target: { value: 'Admin Page' } })
         fireEvent.click(destinationButton);
-
-
-        const expectedDestinationInfo = {
-            org: "Test destination org",
-            proj: "Test proj name",
-            repo: "Test destination repo",
-        };
 
         await waitFor(() => expect(consoleLogMock).toHaveBeenCalledTimes(1));
         expect(console.log.mock.calls[0][0]).toEqual(expectedDestinationInfo);
 
         consoleLogMock.mockRestore();
+    });
+
+    test("When you fill in the destination form and click submit, returns success false", async () => {
+        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
+        axiosMock.onGet("/api/gh/checkDestination").reply(200,{
+            org: "fakeOrg",
+            repo: "fakeRepo",
+            repositoryId: "",
+            success: false
+        });
+
+        const { getByLabelText, getByTestId } = render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <HomePage />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => expect(getByLabelText("Destination Organization")).toBeInTheDocument());
+        const destinationOrganizationField = getByLabelText("Destination Organization");
+        const destinationRepositoryField = getByLabelText("Destination Repository");
+        const destinationProjectNameField = getByLabelText("Destination Project Name");
+        const destinationButton = getByTestId("DestinationForm-Submit-Button");
+
+
+        fireEvent.change(destinationOrganizationField, { target: { value: 'fakeOrg' } })
+        fireEvent.change(destinationRepositoryField, { target: { value: 'fakeRepo' } })
+        fireEvent.change(destinationProjectNameField, { target: { value: 'fake name' } })
+        fireEvent.click(destinationButton);
+
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("Error Checking Destination. Ensure Organization and Repository are valid");
     });
 
 });
