@@ -48,4 +48,25 @@ public class GithubController extends ApiController {
             .build();
         return sourceRepo;
     }
+
+    @ApiOperation(value = "Check if source org, repo is valid")
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/checkDestination")
+    public SourceRepo checkDestination(
+        @ApiParam("org") @RequestParam String org,
+        @ApiParam("repo") @RequestParam String repo ){
+
+        String repositoryId = github.repositoryId(org, repo);
+        Boolean success = true;
+        if(repositoryId == ""){
+            success = false;
+        }
+        SourceRepo destinationRepo = SourceRepo.builder()
+            .org(org)
+            .repo(repo)
+            .success(success)
+            .repositoryId(repositoryId)
+            .build();
+        return destinationRepo;
+    }
 }

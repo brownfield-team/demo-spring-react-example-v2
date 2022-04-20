@@ -7,6 +7,7 @@ import { useBackendMutation } from "main/utils/useBackend";
 
 export default function HomePage() {
   const [source, setSource] = useState({});
+  const [destination, setDestination] = useState({});
 
   const { data: currentUser } = useCurrentUser();
 
@@ -19,8 +20,7 @@ export default function HomePage() {
     });
   }
 
-  const objectToAxiosParams = (data) => ({
-    // Stryker disable next-line StringLiteral : get is the default
+  const sourceObjectToAxiosParams = (data) => ({
     method: "GET",
     url: "/api/gh/checkSource",
     params: {
@@ -30,17 +30,48 @@ export default function HomePage() {
     }
   });
 
-  const mutation = useBackendMutation(
-    objectToAxiosParams,
+  const sourceMutation = useBackendMutation(
+    sourceObjectToAxiosParams,
     { onSuccess },
   );
 
   const onSubmitSource = async (data) => {
-    mutation.mutate(data);
+    console.log(destination);
+    sourceMutation.mutate(data);
   }
 
+  onSuccess = (response) => {
+    if(response.success){
+      console.log(response);
+      setDestination({
+        org: response.org,
+        repo: response.repo,
+        repositoryId: response.repositoryId
+      });
+    }
+    else{
+      const errorMessage = `Error Checking Destination. Ensure Organization, Repository and Project Number are all valid`;
+      toast(errorMessage);
+    }
+  }
+
+  const destinationObjectToAxiosParams = (data) => ({
+    method: "GET",
+    url: "/api/gh/checkDestination",
+    params: {
+      org: data.org,
+      repo: data.repo,
+    }
+  });
+
+  const destinationMutation = useBackendMutation(
+    destinationObjectToAxiosParams,
+    { onSuccess },
+  );
+
   const onSubmitDestination = async (data) => {
-    console.log(data);
+    console.log(source);
+    destinationMutation.mutate(data);
   }
 
   if (!currentUser.loggedIn) { 
