@@ -119,11 +119,9 @@ describe("HomePage tests", () => {
             success: true
         };
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkDestination").reply(200, expectedDestinationInfo);
+        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "ucsb-cs156-w22", repo: "HappierCows"} }).reply(200, expectedDestinationInfo);
 
-        const consoleLogMock = jest.spyOn(console, 'log').mockImplementation();
-
-        const { getByLabelText, getByTestId } = render(
+        const { getByText, getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
                 <MemoryRouter>
                     <HomePage />
@@ -143,15 +141,12 @@ describe("HomePage tests", () => {
         fireEvent.change(destinationProjectNameField, { target: { value: 'Admin Page' } })
         fireEvent.click(destinationButton);
 
-        await waitFor(() => expect(consoleLogMock).toHaveBeenCalledTimes(1));
-        expect(console.log.mock.calls[0][0]).toEqual(expectedDestinationInfo);
-
-        consoleLogMock.mockRestore();
+        await waitFor(() => expect(getByText("PRO_kwLOG0U47s4A11-W", {exact: false})).toBeInTheDocument());
     });
 
     test("When you fill in the destination form and click submit, returns success false", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkDestination").reply(200,{
+        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "fakeOrg", repo: "fakeRepo" } }).reply(200,{
             org: "fakeOrg",
             repo: "fakeRepo",
             repositoryId: "",

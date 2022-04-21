@@ -1,8 +1,9 @@
 import { Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
+import ReactJson from "react-json-view";
 
 export default function DestinationForm(props) {
-  const { onSubmit } = props;
+  const { onSubmit, destination } = props;
   const {
     register,
     handleSubmit,
@@ -51,6 +52,7 @@ export default function DestinationForm(props) {
       </Form.Group>
 
       <Button type="submit" data-testid="DestinationForm-Submit-Button">Submit Destination</Button>
+      <ReactJson src={destination} />
     </Form>
   );
 }

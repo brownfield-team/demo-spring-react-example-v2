@@ -21,6 +21,7 @@ export default function HomePage() {
   }
 
   const sourceObjectToAxiosParams = (data) => ({
+    // Stryker disable next-line StringLiteral : get is the default
     method: "GET",
     url: "/api/gh/checkSource",
     params: {
@@ -36,13 +37,11 @@ export default function HomePage() {
   );
 
   const onSubmitSource = async (data) => {
-    // console.log(destination);
     sourceMutation.mutate(data);
   }
 
   onSuccess = (response) => {
     if(response.success){
-      console.log(response);
       setDestination({
         org: response.org,
         repo: response.repo,
@@ -56,6 +55,7 @@ export default function HomePage() {
   }
 
   const destinationObjectToAxiosParams = (data) => ({
+    // Stryker disable next-line StringLiteral : get is the default
     method: "GET",
     url: "/api/gh/checkDestination",
     params: {
@@ -70,7 +70,6 @@ export default function HomePage() {
   );
 
   const onSubmitDestination = async (data) => {
-    // console.log(source);
     destinationMutation.mutate(data);
   }
 
@@ -89,7 +88,7 @@ export default function HomePage() {
         <h2>Specify Source</h2>
         <SourceForm onSubmit={onSubmitSource} source={source}/>
         <h2>Specify Destination and new Kanban Board Name</h2>
-        <DestinationForm onSubmit={onSubmitDestination}/>
+        <DestinationForm onSubmit={onSubmitDestination} destination={destination}/>
       </div>
     </BasicLayout>
   )
