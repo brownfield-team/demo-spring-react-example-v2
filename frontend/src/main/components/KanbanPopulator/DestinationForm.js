@@ -16,11 +16,11 @@ export default function DestinationForm(props) {
         <Form.Control
           id="destOrg"
           type="text"
-          isInvalid={Boolean(errors.org)}
-          {...register("org", { required: "Destination Organization is required" })}
+          isInvalid={Boolean(errors.destOrg)}
+          {...register("destOrg", { required: "Destination Organization is required" })}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.org?.message}
+          {errors.destOrg?.message}
         </Form.Control.Feedback>
       </Form.Group>
 
@@ -29,24 +29,11 @@ export default function DestinationForm(props) {
         <Form.Control
           id="destRepo"
           type="text"
-          isInvalid={Boolean(errors.org)}
-          {...register("repo", { required: "Destination Repository is required" })}
+          isInvalid={Boolean(errors.destRepo)}
+          {...register("destRepo", { required: "Destination Repository is required" })}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.repo?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Label htmlFor="destProj">Destination Project Name</Form.Label>
-        <Form.Control
-          id="destProj"
-          type="text"
-          isInvalid={Boolean(errors.proj)}
-          {...register("proj", { required: "Destination Project Name is required" })}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.proj?.message}
+          {errors.destRepo?.message}
         </Form.Control.Feedback>
       </Form.Group>
 

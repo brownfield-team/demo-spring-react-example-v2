@@ -36,8 +36,9 @@ describe("HomePage tests", () => {
             </QueryClientProvider>
         );
 
-        await waitFor(() => expect(getByText("Specify Source")).toBeInTheDocument());
-        await waitFor(() => expect(getByText("Specify Destination and new Kanban Board Name")).toBeInTheDocument());
+        await waitFor(() => expect(getByText("Specify Source Repository")).toBeInTheDocument());
+        expect(getByText("Specify Destination Repository")).toBeInTheDocument();
+        expect(getByText("Specify New Kanban Board Name")).toBeInTheDocument();
     });
 
     test("When you fill in form and click submit, the right things happens src", async () => {
@@ -65,9 +66,9 @@ describe("HomePage tests", () => {
         fireEvent.click(sourceButton);
 
         const expectedSourceInfo = {
-            org: "Test source org",
-            proj: "9",
-            repo: "Test source repo",
+            srcOrg: "Test source org",
+            srcProj: "9",
+            srcRepo: "Test source repo",
         };
 
         await waitFor(() => expect(consoleLogMock).toHaveBeenCalledTimes(1));
@@ -92,24 +93,52 @@ describe("HomePage tests", () => {
         await waitFor(() => expect(getByLabelText("Destination Organization")).toBeInTheDocument());
         const destinationOrganizationField = getByLabelText("Destination Organization");
         const destinationRepositoryField = getByLabelText("Destination Repository");
-        const destinationProjectNameField = getByLabelText("Destination Project Name");
         const destinationButton = getByTestId("DestinationForm-Submit-Button");
 
 
         fireEvent.change(destinationOrganizationField, { target: { value: 'Test destination org' } })
         fireEvent.change(destinationRepositoryField, { target: { value: 'Test destination repo' } })
-        fireEvent.change(destinationProjectNameField, { target: { value: 'Test proj name' } })
         fireEvent.click(destinationButton);
 
 
         const expectedDestinationInfo = {
-            org: "Test destination org",
-            proj: "Test proj name",
-            repo: "Test destination repo",
+            destOrg: "Test destination org",
+            destRepo: "Test destination repo",
         };
 
         await waitFor(() => expect(consoleLogMock).toHaveBeenCalledTimes(1));
         expect(console.log.mock.calls[0][0]).toEqual(expectedDestinationInfo);
+
+        consoleLogMock.mockRestore();
+    });
+
+    test("When you fill in form and click submit, the right things happens project name", async () => {
+        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
+
+        const consoleLogMock = jest.spyOn(console, 'log').mockImplementation();
+
+        const { getByLabelText, getByTestId } = render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <HomePage />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => expect(getByLabelText("New Project Name")).toBeInTheDocument());
+        const projectNameField = getByLabelText("New Project Name");
+        const createProjectButton = getByTestId("CreateProjectForm-Submit-Button");
+
+        fireEvent.change(projectNameField, { target: { value: 'Test project name' } })
+        fireEvent.click(createProjectButton);
+
+
+        const expectedProjectInfo = {
+            projName: "Test project name",
+        };
+
+        await waitFor(() => expect(consoleLogMock).toHaveBeenCalledTimes(1));
+        expect(console.log.mock.calls[0][0]).toEqual(expectedProjectInfo);
 
         consoleLogMock.mockRestore();
     });

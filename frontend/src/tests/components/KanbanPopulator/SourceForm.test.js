@@ -8,7 +8,7 @@ describe(SourceForm, () => {
     await waitFor(() => expect(getByText(/Source Organization/)).toBeInTheDocument());
     await waitFor(() => expect(getByText(/Source Repository/)).toBeInTheDocument());
     await waitFor(() => expect(getByText(/Source Project Number/)).toBeInTheDocument());
-    await waitFor(() => expect(getByText(/Submit/)).toBeInTheDocument());
+    await waitFor(() => expect(getByText(/Submit Source/)).toBeInTheDocument());
   });
 
   it("has Correct Error messsages on missing input", async () => {
@@ -35,9 +35,9 @@ describe(SourceForm, () => {
 
     await waitFor(() => expect(onSubmit).toBeCalledTimes(1));
     expect(onSubmit.mock.calls[0][0]).toMatchObject({
-      org: "Test org",
-      proj: "9",
-      repo: "Test repo",
+      srcOrg: "Test org",
+      srcProj: "9",
+      srcRepo: "Test repo",
     });
   });
 });
