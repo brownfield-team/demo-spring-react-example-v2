@@ -40,15 +40,10 @@ public class GithubController extends ApiController {
         @ApiParam("projNum") @RequestParam int projNum ){
 
         String projectId = github.projectId(org, repo, projNum);
-        Boolean success = true;
-        if(projectId == ""){
-            success = false;
-        }
         SourceRepo sourceRepo = SourceRepo.builder()
             .org(org)
             .repo(repo)
             .projectNum(projNum)
-            .success(success)
             .projectId(projectId)
             .build();
         return sourceRepo;

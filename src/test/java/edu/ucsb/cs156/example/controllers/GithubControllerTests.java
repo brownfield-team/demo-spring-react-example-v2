@@ -42,7 +42,6 @@ public class GithubControllerTests extends ControllerTestCase {
             .org("ucsb-cs156-w22")
             .repo("HappierCows")
             .projectNum(1)
-            .success(true)
             .projectId("PRO_kwLOG0U47s4A11-W")
             .build();
     when(mockGithubService.projectId("ucsb-cs156-w22", "HappierCows", 1)).thenReturn("PRO_kwLOG0U47s4A11-W");
@@ -66,7 +65,6 @@ public class GithubControllerTests extends ControllerTestCase {
             .org("fakeOrg")
             .repo("fakeRepo")
             .projectNum(1)
-            .success(false)
             .projectId("")
             .build();
     when(mockGithubService.projectId("fakeOrg", "fakeRepo", 1)).thenReturn("");
@@ -89,7 +87,6 @@ public class GithubControllerTests extends ControllerTestCase {
     .org("ucsb-cs156-w22")
     .repo("HappierCows")
     .projectNum(1)
-    .success(true)
     .projectId("PRO_kwLOG0U47s4A11-W")
     .build();
     when(mockGithubService.projectId("ucsb-cs156-w22", "HappierCows", 1)).thenReturn("PRO_kwLOG0U47s4A11-W");
@@ -113,7 +110,6 @@ public class GithubControllerTests extends ControllerTestCase {
             .org("fakeOrg")
             .repo("fakeRepo")
             .projectNum(1)
-            .success(false)
             .projectId("")
             .build();
     when(mockGithubService.projectId("fakeOrg", "fakeRepo", 1)).thenReturn("");

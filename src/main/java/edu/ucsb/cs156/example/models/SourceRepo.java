@@ -15,6 +15,5 @@ public class SourceRepo {
     private String org;
     private String repo;
     private int projectNum;
-    private Boolean success;
     private String projectId;
 }

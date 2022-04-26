@@ -56,7 +56,6 @@ describe("HomePage tests", () => {
             repo: "HappierCows",
             projectNum: 1,
             projectId: "PRO_kwLOG0U47s4A11-W",
-            success: true
         };
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkSource", { params: { org: "ucsb-cs156-w22", repo: "HappierCows", projNum: "1"} })
@@ -86,13 +85,7 @@ describe("HomePage tests", () => {
 
     test("When you fill in the source form and click submit, returns source not found", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkSource").reply(200,{
-            org: "fakeOrg",
-            repo: "fakeRepo",
-            projectNum: 8,
-            projectId: "",
-            success: false
-        });
+        axiosMock.onGet("/api/gh/checkSource").reply(500);
 
         const { getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
@@ -113,8 +106,9 @@ describe("HomePage tests", () => {
         fireEvent.change(sourceProjectNumberField, { target: { value: '8' } })
         fireEvent.click(sourceButton);
 
-        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
-        expect(mockToast.mock.calls[0][0]).toEqual("Error Checking Source. Ensure Organization, Repository and Project Number are all valid");
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(2));
+        expect(mockToast.mock.calls[0][0]).toEqual("Axios Error: Error: Request failed with status code 500");
+        expect(mockToast.mock.calls[1][0]).toEqual("Error: Request failed with status code 500");
     });
 
     test("When you fill in form the destination form and click submit, the right things happens", async () => {

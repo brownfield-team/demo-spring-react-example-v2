@@ -4,7 +4,6 @@ import SourceForm from "main/components/KanbanPopulator/SourceForm"
 import DestinationForm from "main/components/KanbanPopulator/DestinationForm"
 import { useCurrentUser } from "main/utils/currentUser";
 import { useBackendMutation } from "main/utils/useBackend";
-import { toast } from "react-toastify";
 
 export default function HomePage() {
   const [source, setSource] = useState({});
@@ -12,19 +11,12 @@ export default function HomePage() {
   const { data: currentUser } = useCurrentUser();
 
   const onSuccess = (response) => {
-    if(response.success){
-      // console.log(`Successful Response from api/gh/checkSource: ${response}`);
-      setSource({
-        org: response.org,
-        repo: response.repo,
-        projNum: response.projectNum,
-        projectId: response.projectId
-      });
-    }
-    else{
-      const errorMessage = `Error Checking Source. Ensure Organization, Repository and Project Number are all valid`;
-      toast(errorMessage);
-    }
+    setSource({
+      org: response.org,
+      repo: response.repo,
+      projNum: response.projectNum,
+      projectId: response.projectId
+    });
   }
 
   const objectToAxiosParams = (data) => ({
