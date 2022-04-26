@@ -1,7 +1,7 @@
 import { Button, Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
-export default function CreateProjectForm(props) {
+export default function CopyProjectForm(props) {
   const { onSubmit } = props;
   const {
     register,
@@ -25,7 +25,7 @@ export default function CreateProjectForm(props) {
         </Form.Control.Feedback>
       </Form.Group>
 
-      <Button type="submit" data-testid="CreateProjectForm-Submit-Button">Create New Project</Button>
+      <Button type="submit" data-testid="CopyProjectForm-Submit-Button">Populate Kanban Board</Button>
     </Form>
   );
 }

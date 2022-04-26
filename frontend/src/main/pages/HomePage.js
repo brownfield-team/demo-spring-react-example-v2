@@ -1,7 +1,7 @@
 import BasicLayout from "main/layouts/BasicLayout/BasicLayout";
 import SourceForm from "main/components/KanbanPopulator/SourceForm"
 import DestinationForm from "main/components/KanbanPopulator/DestinationForm"
-import CreateProjectForm from "main/components/KanbanPopulator/CreateProjectForm"
+import CopyProjectForm from "main/components/KanbanPopulator/CopyProjectForm"
 import { useCurrentUser } from "main/utils/currentUser";
 
 export default function HomePage() {
@@ -36,8 +36,8 @@ export default function HomePage() {
         <SourceForm onSubmit={onSubmitSource}/>
         <h2>Specify Destination Repository</h2>
         <DestinationForm onSubmit={onSubmitDestination}/>
-        <h2>Specify New Kanban Board Name</h2>
-        <CreateProjectForm onSubmit={onSubmitProjectName}/>
+        <h2>Populate New Kanban Board</h2>
+        <CopyProjectForm onSubmit={onSubmitProjectName}/>
       </div>
     </BasicLayout>
   )

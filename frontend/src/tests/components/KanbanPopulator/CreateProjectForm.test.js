@@ -1,17 +1,17 @@
 import { act, render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import CreateProjectForm from "main/components/KanbanPopulator/CreateProjectForm"
+import CopyProjectForm from "main/components/KanbanPopulator/CopyProjectForm"
 
-describe(CreateProjectForm, () => {
+describe(CopyProjectForm, () => {
   it("renders correctly ", async () => {
-    const { getByText } = render(<CreateProjectForm />);
+    const { getByText } = render(<CopyProjectForm />);
     await waitFor(() => expect(getByText(/New Project Name/)).toBeInTheDocument());
-    await waitFor(() => expect(getByText(/Create New Project/)).toBeInTheDocument());
+    await waitFor(() => expect(getByText(/Copy New Project/)).toBeInTheDocument());
   });
 
   it("has Correct Error messsages on missing input", async () => {
     const onSubmit = jest.fn();
-    await act(async () => render(<CreateProjectForm onSubmit={onSubmit} />));
+    await act(async () => render(<CopyProjectForm onSubmit={onSubmit} />));
 
     userEvent.click(screen.getByRole("button"));
 
@@ -22,7 +22,7 @@ describe(CreateProjectForm, () => {
 
   it("calls the onSubmit callback with valid inputs", async () => {
     const onSubmit = jest.fn();
-    await act(async () => render(<CreateProjectForm onSubmit={onSubmit} />));
+    await act(async () => render(<CopyProjectForm onSubmit={onSubmit} />));
 
     userEvent.type(screen.getByLabelText(/New Project Name/), "Test proj name");
     userEvent.click(screen.getByRole("button"));

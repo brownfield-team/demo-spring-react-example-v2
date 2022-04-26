@@ -127,10 +127,10 @@ describe("HomePage tests", () => {
 
         await waitFor(() => expect(getByLabelText("New Project Name")).toBeInTheDocument());
         const projectNameField = getByLabelText("New Project Name");
-        const createProjectButton = getByTestId("CreateProjectForm-Submit-Button");
+        const copyProjectButton = getByTestId("CopyProjectForm-Submit-Button");
 
         fireEvent.change(projectNameField, { target: { value: 'Test project name' } })
-        fireEvent.click(createProjectButton);
+        fireEvent.click(copyProjectButton);
 
 
         const expectedProjectInfo = {
