@@ -6,7 +6,7 @@ describe(CopyProjectForm, () => {
   it("renders correctly ", async () => {
     const { getByText } = render(<CopyProjectForm />);
     await waitFor(() => expect(getByText(/New Project Name/)).toBeInTheDocument());
-    await waitFor(() => expect(getByText(/Copy New Project/)).toBeInTheDocument());
+    await waitFor(() => expect(getByText(/Populate Kanban Board/)).toBeInTheDocument());
   });
 
   it("has Correct Error messsages on missing input", async () => {

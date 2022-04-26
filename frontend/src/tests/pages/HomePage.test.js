@@ -38,7 +38,7 @@ describe("HomePage tests", () => {
 
         await waitFor(() => expect(getByText("Specify Source Repository")).toBeInTheDocument());
         expect(getByText("Specify Destination Repository")).toBeInTheDocument();
-        expect(getByText("Specify New Kanban Board Name")).toBeInTheDocument();
+        expect(getByText("Populate New Kanban Board")).toBeInTheDocument();
     });
 
     test("When you fill in form and click submit, the right things happens src", async () => {
