@@ -19,6 +19,9 @@ public class GithubService {
   @Autowired
   private GraphQLPaginationService paginationService;
 
+  @Autowired
+  private GraphQLPaginationService paginationService;
+
   public String createProject(String ownerId, String name) {
     GraphQLResponse response = githubApi.executeGraphQLQuery("""
         mutation($ownerId: ID!, $name: String!) {
