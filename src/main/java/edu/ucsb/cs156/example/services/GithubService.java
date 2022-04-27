@@ -34,8 +34,6 @@ public class GithubService {
           "projNum", projNum
         ));
       
-      System.out.println(result);
-      
       if(result.extractValue("repository.project") == null){
         throw new GenericBackendException("No project with number %d in %s/%s".formatted(projNum, owner, repo));
       }
