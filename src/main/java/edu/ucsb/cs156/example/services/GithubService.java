@@ -5,7 +5,7 @@ import edu.ucsb.cs156.example.models.Issue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.*;
 import edu.ucsb.cs156.example.errors.GenericBackendException;
 
 import com.netflix.graphql.dgs.client.GraphQLResponse;
@@ -22,6 +22,9 @@ import java.util.stream.StreamSupport;
 public class GithubService {
   @Autowired
   private GithubGraphQLService githubApi;
+
+  @Autowired
+  private GraphQLPaginationService paginationService;
 
   public String createProject(String ownerId, String name) {
     GraphQLResponse response = githubApi.executeGraphQLQuery("""
@@ -98,6 +101,128 @@ public class GithubService {
       ));
 
     return response.extractValue("addProjectCard.cardEdge.node.id");
+  }
+
+  public String getProjectName(String projectId) {
+    GraphQLResponse response = githubApi.executeGraphQLQuery("""
+        query($projectId: ID!) {
+          node(id: $projectId) {
+            ... on Project {
+              name
+            }
+          }
+        }
+        """,
+      Map.of(
+        "projectId", projectId
+      ));
+
+    return response.extractValue("node.name");
+  }
+
+  private GraphQLResponse fetchIssuesFromColumn(String columnId, String cursor) {
+    Map<String, Object> variables = new HashMap<>();
+    variables.put("columnId", columnId);
+
+    if (cursor != null) {
+      variables.put("cursor", cursor);
+    }
+
+    return githubApi.executeGraphQLQuery("""
+        query($columnId: ID!, $cursor: String) {
+          node(id: $columnId) {
+            ... on ProjectColumn {
+              cards(first: 100, after: $cursor) {
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+                edges {
+                  node {
+                    content {
+                      __typename
+                      ... on Issue {
+                        title
+                        body
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """,
+      variables
+    );
+  }
+
+  private List<Issue> getIssuesFromColumn(String columnId) {
+    return paginationService.streamPaginatedQuery(
+        cursor -> fetchIssuesFromColumn(columnId, cursor),
+        r -> r.extractValue("node.cards.pageInfo.hasNextPage"),
+        r -> r.extractValue("node.cards.pageInfo.endCursor")
+      )
+      .flatMap(r ->
+        r.<List<Map<String, String>>>extractValue("node.cards.edges[*].node.content")
+          .stream()
+          .filter(Objects::nonNull)
+      )
+      .filter(m -> m.get("__typename").equals("Issue"))
+      .map(data ->
+        Issue.builder()
+          .title(data.get("title"))
+          .body(data.get("body"))
+          .build()
+      )
+      .toList();
+  }
+
+  private GraphQLResponse queryProjectColumnsAndIssues(String projectId, String cursor) {
+    Map<String, Object> variables = new HashMap<>();
+    variables.put("projectId", projectId);
+
+    if (cursor != null) {
+      variables.put("cursor", cursor);
+    }
+
+    return githubApi.executeGraphQLQuery("""
+        query($projectId: ID!, $cursor: String) {
+          node(id: $projectId) {
+            ... on Project {
+              columns(first: 100, after: $cursor) {
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+        """,
+      variables
+    );
+  }
+
+  public Map<String, List<Issue>> getProjectColumnsAndIssues(String projectId) {
+    return paginationService.streamPaginatedQuery(
+        cursor -> queryProjectColumnsAndIssues(projectId, cursor),
+        r -> r.extractValue("node.columns.pageInfo.hasNextPage"),
+        r -> r.extractValue("node.columns.pageInfo.endCursor")
+      )
+      .flatMap(r -> r.<List<Map<String, String>>>extractValue("node.columns.edges[*].node").stream())
+      .collect(
+        // Using a LinkedHashMap rather than Collectors.toMap to preserve insertion order
+        LinkedHashMap::new,
+        (map, column) -> map.put(column.get("name"), getIssuesFromColumn(column.get("id"))),
+        Map::putAll
+      );
   }
 
   public String repositoryId(String owner, String repo) {
