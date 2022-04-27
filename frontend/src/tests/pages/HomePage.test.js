@@ -83,7 +83,7 @@ describe("HomePage tests", () => {
         await waitFor(() => expect(getByText("PRO_kwLOG0U47s4A11-W", {exact: false})).toBeInTheDocument());
     });
 
-    test("When you fill in the source form and click submit, returns success false", async () => {
+    test("When you fill in the source form and click submit, returns 500 error", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkSource").reply(500);
 
@@ -115,8 +115,7 @@ describe("HomePage tests", () => {
         const expectedDestinationInfo = {
             org: "ucsb-cs156-w22",
             repo: "HappierCows",
-            repositoryId: "PRO_kwLOG0U47s4A11-W",
-            success: true
+            repositoryId: "PRO_kwLOG0U47s4A11-W"
         };
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkDestination", { params: { org: "ucsb-cs156-w22", repo: "HappierCows"} }).reply(200, expectedDestinationInfo);
@@ -144,14 +143,9 @@ describe("HomePage tests", () => {
         await waitFor(() => expect(getByText("PRO_kwLOG0U47s4A11-W", {exact: false})).toBeInTheDocument());
     });
 
-    test("When you fill in the destination form and click submit, returns success false", async () => {
+    test("When you fill in the destination form and click submit, returns 500 error", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "fakeOrg", repo: "fakeRepo" } }).reply(200,{
-            org: "fakeOrg",
-            repo: "fakeRepo",
-            repositoryId: "",
-            success: false
-        });
+        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "fakeOrg", repo: "fakeRepo" } }).reply(500);
 
         const { getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
@@ -173,8 +167,9 @@ describe("HomePage tests", () => {
         fireEvent.change(destinationProjectNameField, { target: { value: 'fake name' } })
         fireEvent.click(destinationButton);
 
-        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
-        expect(mockToast.mock.calls[0][0]).toEqual("Error Checking Destination. Ensure Organization and Repository are valid");
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(2));
+        expect(mockToast.mock.calls[0][0]).toEqual("Axios Error: Error: Request failed with status code 500");
+        expect(mockToast.mock.calls[1][0]).toEqual("Error: Request failed with status code 500");
     });
 
 });

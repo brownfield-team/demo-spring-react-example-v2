@@ -11,18 +11,9 @@ import lombok.AccessLevel;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class SourceRepo {
+public class GithubProject {
     private String org;
     private String repo;
     private int projectNum;
     private String projectId;
-    private String repositoryId;
 }
-
-// public class RepoDTO {
-//     private String org;
-//     private String repo;
-//     private int projectNum;
-//     private Boolean success;
-//     private String projectId;
-// }

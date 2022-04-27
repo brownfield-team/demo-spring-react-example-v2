@@ -11,15 +11,6 @@ export default function HomePage() {
 
   const { data: currentUser } = useCurrentUser();
 
-  const onSuccess = (response) => {
-    setSource({
-      org: response.org,
-      repo: response.repo,
-      projNum: response.projectNum,
-      projectId: response.projectId
-    });
-  }
-
   const sourceObjectToAxiosParams = (data) => ({
     // Stryker disable next-line StringLiteral : get is the default
     method: "GET",
@@ -33,25 +24,14 @@ export default function HomePage() {
 
   const sourceMutation = useBackendMutation(
     sourceObjectToAxiosParams,
-    { onSuccess },
+    {  onSuccess: (response) => {
+        setSource(response);
+      }
+    },
   );
 
   const onSubmitSource = async (data) => {
     sourceMutation.mutate(data);
-  }
-
-  onSuccess = (response) => {
-    if(response.success){
-      setDestination({
-        org: response.org,
-        repo: response.repo,
-        repositoryId: response.repositoryId
-      });
-    }
-    else{
-      const errorMessage = `Error Checking Destination. Ensure Organization and Repository are valid`;
-      toast(errorMessage);
-    }
   }
 
   const destinationObjectToAxiosParams = (data) => ({
@@ -66,7 +46,10 @@ export default function HomePage() {
 
   const destinationMutation = useBackendMutation(
     destinationObjectToAxiosParams,
-    { onSuccess },
+    {  onSuccess: (response) => {
+        setDestination(response);
+      }
+    },
   );
 
   const onSubmitDestination = async (data) => {
