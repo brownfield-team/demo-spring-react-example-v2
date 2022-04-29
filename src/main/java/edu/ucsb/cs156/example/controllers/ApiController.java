@@ -1,6 +1,7 @@
 package edu.ucsb.cs156.example.controllers;
 
 import edu.ucsb.cs156.example.errors.EntityNotFoundException;
+import edu.ucsb.cs156.example.errors.GenericBackendException;
 import edu.ucsb.cs156.example.errors.GraphQLResponseErrorException;
 import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public abstract class ApiController {
     return Map.of("message", message);
   }
 
-  @ExceptionHandler({ GraphQLResponseErrorException.class })
+  @ExceptionHandler({ GenericBackendException.class, GraphQLResponseErrorException.class })
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public Object handleGenericException(Throwable e) {
     return Map.of(
