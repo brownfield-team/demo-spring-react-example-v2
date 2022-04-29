@@ -17,11 +17,11 @@ export default function SourceForm(props) {
         <Form.Control
           id="srcOrg"
           type="text"
-          isInvalid={Boolean(errors.org)}
-          {...register("org", { required: "Source Organization is required" })}
+          isInvalid={Boolean(errors.srcOrg)}
+          {...register("srcOrg", { required: "Source Organization is required" })}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.org?.message}
+          {errors.srcOrg?.message}
         </Form.Control.Feedback>
       </Form.Group>
 
@@ -30,11 +30,11 @@ export default function SourceForm(props) {
         <Form.Control
           id="srcRepo"
           type="text"
-          isInvalid={Boolean(errors.org)}
-          {...register("repo", { required: "Source Repository is required" })}
+          isInvalid={Boolean(errors.srcRepo)}
+          {...register("srcRepo", { required: "Source Repository is required" })}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.repo?.message}
+          {errors.srcRepo?.message}
         </Form.Control.Feedback>
       </Form.Group>
 
@@ -44,11 +44,11 @@ export default function SourceForm(props) {
           id="srcProj"
           type="number"
           step="1"
-          isInvalid={Boolean(errors.proj)}
-          {...register("proj", { required: "Source Project Number is required" })}
+          isInvalid={Boolean(errors.srcProj)}
+          {...register("srcProj", { required: "Source Project Number is required" })}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.proj?.message}
+          {errors.srcProj?.message}
         </Form.Control.Feedback>
       </Form.Group>
 

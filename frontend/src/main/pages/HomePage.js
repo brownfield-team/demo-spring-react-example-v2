@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import BasicLayout from "main/layouts/BasicLayout/BasicLayout";
 import SourceForm from "main/components/KanbanPopulator/SourceForm"
 import DestinationForm from "main/components/KanbanPopulator/DestinationForm"
+import CopyProjectForm from "main/components/KanbanPopulator/CopyProjectForm"
 import { useCurrentUser } from "main/utils/currentUser";
 import { useBackendMutation } from "main/utils/useBackend";
 
@@ -16,9 +17,9 @@ export default function HomePage() {
     method: "GET",
     url: "/api/gh/checkSource",
     params: {
-      org: data.org,
-      repo: data.repo,
-      projNum: data.proj
+      org: data.srcOrg,
+      repo: data.srcRepo,
+      projNum: data.srcProj
     }
   });
 
@@ -39,8 +40,8 @@ export default function HomePage() {
     method: "GET",
     url: "/api/gh/checkDestination",
     params: {
-      org: data.org,
-      repo: data.repo,
+      org: data.destOrg,
+      repo: data.destRepo,
     }
   });
 
@@ -55,6 +56,10 @@ export default function HomePage() {
   const onSubmitDestination = async (data) => {
     destinationMutation.mutate(data);
   }
+  
+  const onSubmitProjectName = async (data) => {
+    console.log(data);
+  }
 
   if (!currentUser.loggedIn) { 
     return (
@@ -68,10 +73,12 @@ export default function HomePage() {
     <BasicLayout>
       <div className="pt-2">
         <h1>Kanban Board Populator</h1>
-        <h2>Specify Source</h2>
+        <h2>Specify Source Repository</h2>
         <SourceForm onSubmit={onSubmitSource} source={source}/>
-        <h2>Specify Destination and new Kanban Board Name</h2>
+        <h2>Specify Destination Repository</h2>
         <DestinationForm onSubmit={onSubmitDestination} destination={destination}/>
+        <h2>Populate New Kanban Board</h2>
+        <CopyProjectForm onSubmit={onSubmitProjectName}/>
       </div>
     </BasicLayout>
   )

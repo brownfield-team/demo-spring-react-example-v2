@@ -50,7 +50,7 @@ public class GithubController extends ApiController {
         return sourceProject;
     }
 
-    @ApiOperation(value = "Check if source org, repo is valid")
+    @ApiOperation(value = "Check if destination org, repo is valid")
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/checkDestination")
     public GithubRepository checkDestination(

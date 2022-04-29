@@ -7,8 +7,7 @@ describe(DestinationForm, () => {
     const { getByText } = render(<DestinationForm />);
     await waitFor(() => expect(getByText(/Destination Organization/)).toBeInTheDocument());
     await waitFor(() => expect(getByText(/Destination Repository/)).toBeInTheDocument());
-    await waitFor(() => expect(getByText(/Destination Project Name/)).toBeInTheDocument());
-    await waitFor(() => expect(getByText(/Submit/)).toBeInTheDocument());
+    await waitFor(() => expect(getByText(/Submit Destination/)).toBeInTheDocument());
   });
 
   it("has Correct Error messsages on missing input", async () => {
@@ -19,7 +18,6 @@ describe(DestinationForm, () => {
 
     expect(await screen.findByText(/Destination Organization is required/)).toBeInTheDocument();
     expect(await screen.findByText(/Destination Repository is required/)).toBeInTheDocument();
-    expect(await screen.findByText(/Destination Project Name is required/)).toBeInTheDocument();
 
     expect(onSubmit).not.toBeCalled();
   });
@@ -30,14 +28,12 @@ describe(DestinationForm, () => {
 
     userEvent.type(screen.getByLabelText(/Destination Organization/), "Test org");
     userEvent.type(screen.getByLabelText(/Destination Repository/), "Test repo");
-    userEvent.type(screen.getByLabelText(/Destination Project Name/), "Test proj name");
     userEvent.click(screen.getByRole("button"));
 
     await waitFor(() => expect(onSubmit).toBeCalledTimes(1));
     expect(onSubmit.mock.calls[0][0]).toMatchObject({
-      org: "Test org",
-      proj: "Test proj name",
-      repo: "Test repo",
+      destOrg: "Test org",
+      destRepo: "Test repo",
     });
   });
 });
