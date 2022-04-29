@@ -56,7 +56,7 @@ describe("HomePage tests", () => {
             org: "ucsb-cs156-w22",
             repo: "HappierCows",
             projectNum: 1,
-            projectId: "PRO_kwLOG0U47s4A11-W",
+            projectId: "PRO_dummy_id",
         };
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkSource", { params: { org: "ucsb-cs156-w22", repo: "HappierCows", projNum: "1"} })
@@ -81,7 +81,7 @@ describe("HomePage tests", () => {
         fireEvent.change(sourceProjectNumberField, { target: { value: '1' } })
         fireEvent.click(sourceButton);
 
-        await waitFor(() => expect(getByText("PRO_kwLOG0U47s4A11-W", {exact: false})).toBeInTheDocument());
+        await waitFor(() => expect(getByText("PRO_dummy_id", {exact: false})).toBeInTheDocument());
     });
 
     test("When you fill in the source form and click submit, returns 500 error", async () => {
@@ -116,7 +116,7 @@ describe("HomePage tests", () => {
         const expectedDestinationInfo = {
             org: "ucsb-cs156-w22",
             repo: "HappierCows",
-            repositoryId: "PRO_kwLOG0U47s4A11-W"
+            repositoryId: "R_dummy_id"
         };
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkDestination", { params: { org: "ucsb-cs156-w22", repo: "HappierCows"} }).reply(200, expectedDestinationInfo);
@@ -132,16 +132,14 @@ describe("HomePage tests", () => {
         await waitFor(() => expect(getByLabelText("Destination Organization")).toBeInTheDocument());
         const destinationOrganizationField = getByLabelText("Destination Organization");
         const destinationRepositoryField = getByLabelText("Destination Repository");
-        const destinationProjectNameField = getByLabelText("Destination Project Name");
         const destinationButton = getByTestId("DestinationForm-Submit-Button");
 
 
         fireEvent.change(destinationOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
         fireEvent.change(destinationRepositoryField, { target: { value: 'HappierCows' } })
-        fireEvent.change(destinationProjectNameField, { target: { value: 'Admin Page' } })
         fireEvent.click(destinationButton);
 
-        await waitFor(() => expect(getByText("PRO_kwLOG0U47s4A11-W", {exact: false})).toBeInTheDocument());
+        await waitFor(() => expect(getByText("R_dummy_id", {exact: false})).toBeInTheDocument());
     });
 
     test("When you fill in the destination form and click submit, returns 500 error", async () => {
@@ -163,7 +161,6 @@ describe("HomePage tests", () => {
 
         fireEvent.change(destinationOrganizationField, { target: { value: 'fakeOrg' } })
         fireEvent.change(destinationRepositoryField, { target: { value: 'fakeRepo' } })
-        fireEvent.change(destinationProjectNameField, { target: { value: 'fake name' } })
         fireEvent.click(destinationButton);
 
         await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(2));

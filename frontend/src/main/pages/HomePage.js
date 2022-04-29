@@ -4,6 +4,7 @@ import SourceForm from "main/components/KanbanPopulator/SourceForm"
 import DestinationForm from "main/components/KanbanPopulator/DestinationForm"
 import CopyProjectForm from "main/components/KanbanPopulator/CopyProjectForm"
 import { useCurrentUser } from "main/utils/currentUser";
+import { useBackendMutation } from "main/utils/useBackend";
 
 export default function HomePage() {
   const [source, setSource] = useState({});
@@ -16,9 +17,9 @@ export default function HomePage() {
     method: "GET",
     url: "/api/gh/checkSource",
     params: {
-      org: data.org,
-      repo: data.repo,
-      projNum: data.proj
+      org: data.srcOrg,
+      repo: data.srcRepo,
+      projNum: data.srcProj
     }
   });
 
@@ -39,8 +40,8 @@ export default function HomePage() {
     method: "GET",
     url: "/api/gh/checkDestination",
     params: {
-      org: data.org,
-      repo: data.repo,
+      org: data.destOrg,
+      repo: data.destRepo,
     }
   });
 
