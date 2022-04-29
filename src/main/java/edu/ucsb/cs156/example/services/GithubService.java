@@ -17,6 +17,23 @@ public class GithubService {
   @Autowired
   GithubGraphQLService githubApi;
 
+  public String repositoryId(String owner, String repo) {
+    GraphQLResponse result = githubApi.executeGraphQLQuery("""
+      query($owner: String!, $repo: String!){
+        repository(owner: $owner, name: $repo) {
+            id
+            name
+        }
+        }
+      """,
+      Map.of(
+        "owner", owner,
+        "repo", repo
+      ));
+    
+    return result.extractValue("repository.id");
+  }
+
   public String projectId(String owner, String repo, int projNum) {
       GraphQLResponse result = githubApi.executeGraphQLQuery("""
         query($owner: String!, $repo: String!, $projNum: Int!){

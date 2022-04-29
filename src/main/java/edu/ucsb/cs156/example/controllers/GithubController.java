@@ -1,7 +1,8 @@
 package edu.ucsb.cs156.example.controllers;
 
 import edu.ucsb.cs156.example.services.GithubService;
-import edu.ucsb.cs156.example.models.SourceRepo;
+import edu.ucsb.cs156.example.models.GithubProject;
+import edu.ucsb.cs156.example.models.GithubRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -34,18 +35,34 @@ public class GithubController extends ApiController {
     @ApiOperation(value = "Check if source org, repo, and project number is valid")
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/checkSource")
-    public SourceRepo checkSource(
+    public GithubProject checkSource(
         @ApiParam("org") @RequestParam String org,
         @ApiParam("repo") @RequestParam String repo, 
         @ApiParam("projNum") @RequestParam int projNum ){
 
         String projectId = github.projectId(org, repo, projNum);
-        SourceRepo sourceRepo = SourceRepo.builder()
+        GithubProject sourceProject = GithubProject.builder()
             .org(org)
             .repo(repo)
             .projectNum(projNum)
             .projectId(projectId)
             .build();
-        return sourceRepo;
+        return sourceProject;
+    }
+
+    @ApiOperation(value = "Check if source org, repo is valid")
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/checkDestination")
+    public GithubRepository checkDestination(
+        @ApiParam("org") @RequestParam String org,
+        @ApiParam("repo") @RequestParam String repo ){
+
+        String repositoryId = github.repositoryId(org, repo);
+        GithubRepository destinationRepo = GithubRepository.builder()
+            .org(org)
+            .repo(repo)
+            .repositoryId(repositoryId)
+            .build();
+        return destinationRepo;
     }
 }

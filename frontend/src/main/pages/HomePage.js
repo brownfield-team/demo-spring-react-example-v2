@@ -7,19 +7,11 @@ import { useBackendMutation } from "main/utils/useBackend";
 
 export default function HomePage() {
   const [source, setSource] = useState({});
+  const [destination, setDestination] = useState({});
 
   const { data: currentUser } = useCurrentUser();
 
-  const onSuccess = (response) => {
-    setSource({
-      org: response.org,
-      repo: response.repo,
-      projNum: response.projectNum,
-      projectId: response.projectId
-    });
-  }
-
-  const objectToAxiosParams = (data) => ({
+  const sourceObjectToAxiosParams = (data) => ({
     // Stryker disable next-line StringLiteral : get is the default
     method: "GET",
     url: "/api/gh/checkSource",
@@ -30,17 +22,38 @@ export default function HomePage() {
     }
   });
 
-  const mutation = useBackendMutation(
-    objectToAxiosParams,
-    { onSuccess },
+  const sourceMutation = useBackendMutation(
+    sourceObjectToAxiosParams,
+    {  onSuccess: (response) => {
+        setSource(response);
+      }
+    },
   );
 
   const onSubmitSource = async (data) => {
-    mutation.mutate(data);
+    sourceMutation.mutate(data);
   }
 
+  const destinationObjectToAxiosParams = (data) => ({
+    // Stryker disable next-line StringLiteral : get is the default
+    method: "GET",
+    url: "/api/gh/checkDestination",
+    params: {
+      org: data.org,
+      repo: data.repo,
+    }
+  });
+
+  const destinationMutation = useBackendMutation(
+    destinationObjectToAxiosParams,
+    {  onSuccess: (response) => {
+        setDestination(response);
+      }
+    },
+  );
+
   const onSubmitDestination = async (data) => {
-    console.log(data);
+    destinationMutation.mutate(data);
   }
 
   if (!currentUser.loggedIn) { 
@@ -58,7 +71,7 @@ export default function HomePage() {
         <h2>Specify Source</h2>
         <SourceForm onSubmit={onSubmitSource} source={source}/>
         <h2>Specify Destination and new Kanban Board Name</h2>
-        <DestinationForm onSubmit={onSubmitDestination}/>
+        <DestinationForm onSubmit={onSubmitDestination} destination={destination}/>
       </div>
     </BasicLayout>
   )
