@@ -5,10 +5,12 @@ import AdminUsersPage from "main/pages/AdminUsersPage";
 import usersFixtures from "fixtures/usersFixtures";
 import { apiCurrentUserFixtures } from "fixtures/currentUserFixtures";
 import { systemInfoFixtures } from "fixtures/systemInfoFixtures";
-import mockConsole from "jest-mock-console";
+import { toast } from "react-toastify";
 
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
+
+const mockToast = jest.spyOn(toast, 'error').mockImplementation();
 
 describe("AdminUsersPage tests", () => {
 
@@ -46,8 +48,6 @@ describe("AdminUsersPage tests", () => {
         const queryClient = new QueryClient();
         axiosMock.onGet("/api/admin/users").timeout();
 
-        const restoreConsole = mockConsole();
-
         const { queryByTestId } = render(
             <QueryClientProvider client={queryClient}>
                 <MemoryRouter>
@@ -58,14 +58,12 @@ describe("AdminUsersPage tests", () => {
 
         await waitFor(() => { expect(axiosMock.history.get.length).toBeGreaterThanOrEqual(1); });
 
-        const errorMessage = console.error.mock.calls[0][0];
-        expect(errorMessage).toMatch("Error communicating with backend via GET on /api/admin/users");
-        restoreConsole();
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast).toHaveBeenCalledWith("Error communicating with backend via GET on /api/admin/users");
 
         expect(queryByTestId(`${testId}-cell-row-0-col-id`)).not.toBeInTheDocument();
 
     });
-
 
 });
 

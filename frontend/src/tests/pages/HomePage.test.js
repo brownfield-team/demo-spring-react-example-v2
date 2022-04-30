@@ -6,16 +6,9 @@ import { apiCurrentUserFixtures }  from "fixtures/currentUserFixtures";
 import { systemInfoFixtures } from "fixtures/systemInfoFixtures";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
+import { toast } from "react-toastify";
 
-const mockToast = jest.fn();
-jest.mock('react-toastify', () => {
-    const originalModule = jest.requireActual('react-toastify');
-    return {
-        __esModule: true,
-        ...originalModule,
-        toast: (x) => mockToast(x)
-    };
-});
+const mockToast = jest.spyOn(toast, 'error').mockImplementation();
 
 describe("HomePage tests", () => {
 
@@ -85,7 +78,8 @@ describe("HomePage tests", () => {
 
     test("When you fill in the source form and click submit, returns 500 error", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkSource").reply(500);
+        axiosMock.onGet("/api/gh/checkSource", { params: { org: "ucsb-cs156-w22", repo: "HappierCows", projNum: "8"}})
+            .reply(500, {type:"GenericBackendException", message:"No project with number 8 in ucsb-cs156-w22/HappierCows"});
 
         const { getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
@@ -101,14 +95,13 @@ describe("HomePage tests", () => {
         const sourceProjectNumberField = getByLabelText("Source Project Number");
         const sourceButton = getByTestId("SourceForm-Submit-Button");
 
-        fireEvent.change(sourceOrganizationField, { target: { value: 'fakeOrg' } })
-        fireEvent.change(sourceRepositoryField, { target: { value: 'fakeRepo' } })
+        fireEvent.change(sourceOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
+        fireEvent.change(sourceRepositoryField, { target: { value: 'HappierCows' } })
         fireEvent.change(sourceProjectNumberField, { target: { value: '8' } })
         fireEvent.click(sourceButton);
 
-        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(2));
-        expect(mockToast.mock.calls[0][0]).toEqual("Axios Error: Error: Request failed with status code 500");
-        expect(mockToast.mock.calls[1][0]).toEqual("Error: Request failed with status code 500");
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("No project with number 8 in ucsb-cs156-w22/HappierCows");
     });
 
     test("When you fill in form the destination form and click submit, the right things happens", async () => {
@@ -145,7 +138,8 @@ describe("HomePage tests", () => {
 
     test("When you fill in the destination form and click submit, returns 500 error", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "fakeOrg", repo: "fakeRepo" } }).reply(500);
+        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "fakeOrg", repo: "fakeRepo" } })
+            .reply(500, {type: 'GraphQLResponseErrorException', message: "GraphQL errors: Could not resolve to a Repository with the name 'fakeOrg/fakeRepo'."});
 
         const { getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
@@ -167,9 +161,8 @@ describe("HomePage tests", () => {
         fireEvent.change(destinationProjectNameField, { target: { value: 'fake name' } })
         fireEvent.click(destinationButton);
 
-        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(2));
-        expect(mockToast.mock.calls[0][0]).toEqual("Axios Error: Error: Request failed with status code 500");
-        expect(mockToast.mock.calls[1][0]).toEqual("Error: Request failed with status code 500");
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("GraphQL errors: Could not resolve to a Repository with the name 'fakeOrg/fakeRepo'.");
     });
 
 });

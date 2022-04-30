@@ -32,9 +32,12 @@ export function useBackend(queryKey, axiosParameters, initialData) {
             const response = await axios(axiosParameters);
             return response.data;
         } catch (e) {
-            const errorMessage = `Error communicating with backend via ${axiosParameters.method} on ${axiosParameters.url}`;
-            toast(errorMessage);
-            console.error(errorMessage, e);
+            if(e.response?.data){
+                toast.error(e.response.data.message);
+            }else{
+                const errorMessage = `Error communicating with backend via ${axiosParameters.method} on ${axiosParameters.url}`;
+                toast.error(errorMessage);
+            }
             throw e;
         }
     }, {
@@ -42,31 +45,21 @@ export function useBackend(queryKey, axiosParameters, initialData) {
     });
 }
 
-// const wrappedParams = async (params) =>
-//   await ( await axios(params)).data;
-
-
-const reportAxiosError = (error) => {
-    console.error("Axios Error:", error);
-    toast(`Axios Error: ${error}`);
-    return null;
-};
-
 const wrappedParams = async (params) => {
-    try {
-        return await (await axios(params)).data;
-    } catch (rejectedValue) {
-        reportAxiosError(rejectedValue);
-        throw rejectedValue;
-    }
+    return await (await axios(params)).data;
 };
 
 export function useBackendMutation(objectToAxiosParams, useMutationParams, queryKey=null) {
     const queryClient = useQueryClient();
 
     return useMutation((object) => wrappedParams(objectToAxiosParams(object)), {
-        onError: (data) => {
-            toast(`${data}`)
+        onError: (error) => {
+            if(error.response.data){
+                toast.error(error.response.data.message);
+            }else{
+                const errorMessage = `Error communicating with backend via ${error.response.config.method} on ${error.response.config.url}`;
+                toast.error(errorMessage);
+            }
         },
         // Stryker disable all: Not sure how to set up the complex behavior needed to test this
         onSettled: () => {
