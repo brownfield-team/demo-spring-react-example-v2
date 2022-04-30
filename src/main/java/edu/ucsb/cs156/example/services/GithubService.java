@@ -8,15 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import edu.ucsb.cs156.example.errors.GenericBackendException;
 
-import com.netflix.graphql.dgs.client.GraphQLResponse;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
-import java.util.stream.StreamSupport;
 
 @Service
 public class GithubService {
