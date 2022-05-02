@@ -32,7 +32,8 @@ export function useBackend(queryKey, axiosParameters, initialData) {
             const response = await axios(axiosParameters);
             return response.data;
         } catch (e) {
-            if(e.response?.data){
+            // Stryker disable next-line OptionalChaining : we want to check if each nested object is there but we dont want to write tests for each specific case
+            if(e.response?.data?.message){
                 toast.error(e.response.data.message);
             }else{
                 const errorMessage = `Error communicating with backend via ${axiosParameters.method} on ${axiosParameters.url}`;
@@ -54,7 +55,8 @@ export function useBackendMutation(objectToAxiosParams, useMutationParams, query
 
     return useMutation((object) => wrappedParams(objectToAxiosParams(object)), {
         onError: (error) => {
-            if(error.response.data){
+            // Stryker disable next-line OptionalChaining : we want to check if each nested object is there but we dont want to write tests for each specific case
+            if(error.response?.data?.message){
                 toast.error(error.response.data.message);
             }else{
                 const errorMessage = `Error communicating with backend via ${error.response.config.method} on ${error.response.config.url}`;
