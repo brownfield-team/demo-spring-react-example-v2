@@ -26,8 +26,9 @@ public class ProjectCloningController extends ApiController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PostMapping("/clone")
   public Job cloneBoard(@RequestBody ProjectCloningParams params) {
+    System.out.println(params);
     return jobService.runAsJob(ctx -> {
-      cloningService.cloneProject(params.getFromProjectId(), params.getToRepoId());
+      cloningService.cloneProject(params.getFromProjectId(), params.getToRepoId(), params.getBoardName());
     });
   }
 }

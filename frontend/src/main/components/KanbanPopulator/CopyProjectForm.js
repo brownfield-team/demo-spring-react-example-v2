@@ -15,10 +15,9 @@ export default function CopyProjectForm(props) {
         <Form.Label htmlFor="projName">New Project Name</Form.Label>
         <Form.Control
           id="projName"
-          
           type="text"
           isInvalid={Boolean(errors.projName)}
-          {...register("projName", { required: "New Project Name is required" })}
+          {...register("projName")}
         />
         <Form.Control.Feedback type="invalid">
           {errors.projName?.message}

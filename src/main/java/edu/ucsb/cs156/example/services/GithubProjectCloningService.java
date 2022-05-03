@@ -14,9 +14,11 @@ public class GithubProjectCloningService {
   @Autowired
   private GithubService github;
 
-  public void cloneProject(String sourceProjectId, String destinationRepoId) {
+  public void cloneProject(String sourceProjectId, String destinationRepoId, String boardName) {
     Map<String, List<Issue>> contents = github.getProjectColumnsAndIssues(sourceProjectId);
-    String boardName = github.getProjectName(sourceProjectId);
+    if(boardName == ""){
+      boardName = github.getProjectName(sourceProjectId);
+    }
     createAndPopulateProject(destinationRepoId, boardName, contents);
   }
 
