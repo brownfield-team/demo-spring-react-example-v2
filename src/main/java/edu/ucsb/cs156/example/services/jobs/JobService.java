@@ -6,6 +6,9 @@ import edu.ucsb.cs156.example.services.CurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,14 +31,16 @@ public class JobService {
       .build();
 
     jobsRepository.save(job);
-    self.runJobAsync(job, jobFunction);
+    self.runJobAsync(job, jobFunction, SecurityContextHolder.getContext());
 
     return job;
   }
 
   @Async
-  public void runJobAsync(Job job, JobContextConsumer jobFunction) {
+  public void runJobAsync(Job job, JobContextConsumer jobFunction, SecurityContext securityContext) {
     JobContext context = new JobContext(jobsRepository, job);
+
+    SecurityContextHolder.setContext(securityContext);
 
     try {
       jobFunction.accept(context);
