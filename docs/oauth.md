@@ -110,7 +110,7 @@ The slightly more tedious way:
 
 ## Prepopulate Database with OAuth Table
 
-This table must be added to the database whenever it is rebuilt or cleaned. To do this on localhost access the H2 console and run 
+The oauth2 authorized clinet table should create itself but if it does not you can create it your self using the H2 console and running
 [this sql script](https://github.com/spring-projects/spring-security/blob/main/oauth2/oauth2-client/src/main/resources/org/springframework/security/oauth2/client/oauth2-client-schema.sql) 
 or for postgres run [this sql script](https://github.com/spring-projects/spring-security/blob/main/oauth2/oauth2-client/src/main/resources/org/springframework/security/oauth2/client/oauth2-client-schema-postgres.sql). 
 
