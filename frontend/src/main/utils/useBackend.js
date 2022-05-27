@@ -33,7 +33,7 @@ export function useBackend(queryKey, axiosParameters, initialData) {
             return response.data;
         } catch (e) {
             const errorMessage = `Error communicating with backend via ${axiosParameters.method} on ${axiosParameters.url}`;
-            toast(errorMessage);
+            toast.error(errorMessage);
             console.error(errorMessage, e);
             throw e;
         }
@@ -48,7 +48,7 @@ export function useBackend(queryKey, axiosParameters, initialData) {
 
 const reportAxiosError = (error) => {
     console.error("Axios Error:", error);
-    toast(`Axios Error: ${error}`);
+    toast.error(`Axios Error: ${error}`);
     return null;
 };
 
@@ -66,7 +66,7 @@ export function useBackendMutation(objectToAxiosParams, useMutationParams, query
 
     return useMutation((object) => wrappedParams(objectToAxiosParams(object)), {
         onError: (data) => {
-            toast(`${data}`)
+            toast.error(`${data}`)
         },
         // Stryker disable all: Not sure how to set up the complex behavior needed to test this
         onSettled: () => {

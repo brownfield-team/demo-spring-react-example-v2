@@ -6,16 +6,7 @@ import { apiCurrentUserFixtures }  from "fixtures/currentUserFixtures";
 import { systemInfoFixtures } from "fixtures/systemInfoFixtures";
 import axios from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
-
-const mockToast = jest.fn();
-jest.mock('react-toastify', () => {
-    const originalModule = jest.requireActual('react-toastify');
-    return {
-        __esModule: true,
-        ...originalModule,
-        toast: (x) => mockToast(x)
-    };
-});
+import { toast } from "react-toastify";
 
 describe("HomePage tests", () => {
 
@@ -36,7 +27,7 @@ describe("HomePage tests", () => {
         await waitFor(() => expect(getByText("Not logged in. Please login to use the Kanban Populator")).toBeInTheDocument());
     });
 
-    test("renders Source Form when logged in", async () => {
+    test("renders all Forms when logged in", async () => {
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         const { getByText } = render(
             <QueryClientProvider client={queryClient}>
@@ -51,16 +42,34 @@ describe("HomePage tests", () => {
         expect(getByText("Populate New Kanban Board")).toBeInTheDocument();
     });
 
-    test("When you fill in the source form and click submit, the right things happens", async () => {
+    test("When you fill in the all forms and click submit, the right things happens", async () => {
+        const mockToast = jest.spyOn(toast, 'success').mockImplementation();
+
         const expectedSourceInfo = {
             org: "ucsb-cs156-w22",
             repo: "HappierCows",
             projectNum: 1,
             projectId: "PRO_dummy_id",
         };
+        const expectedDestinationInfo = {
+            org: "ucsb-cs156-w22",
+            repo: "HappierCows",
+            repositoryId: "R_dummy_id"
+        };
+        const postResponseData = {
+            createdAt: "2022-05-03T15:02:03.353992",
+            createdBy: {id: 1, email: 'vanbrocklin@umail.ucsb.edu', name: 'Seth VanBrocklin', githubUsername: 'sethvanb', avatarUrl: 'https://avatars.githubusercontent.com/u/43657261?v=4'},
+            id: 12,
+            log: null,
+            status: "running",
+            updatedAt: "2022-05-03T15:02:03.353992"
+        }
+
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkSource", { params: { org: "ucsb-cs156-w22", repo: "HappierCows", projNum: "1"} })
             .reply(200, expectedSourceInfo);
+        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "ucsb-cs156-w22", repo: "HappierCows"} }).reply(200, expectedDestinationInfo);
+        axiosMock.onPost("/api/projectcloning/clone", {boardName:"Test project name", fromProjectId:"PRO_dummy_id", toRepoId:"R_dummy_id"}).reply(200, postResponseData);
 
         const { getByText, getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
@@ -82,9 +91,33 @@ describe("HomePage tests", () => {
         fireEvent.click(sourceButton);
 
         await waitFor(() => expect(getByText("PRO_dummy_id", {exact: false})).toBeInTheDocument());
+
+
+        await waitFor(() => expect(getByLabelText("Destination Organization")).toBeInTheDocument());
+        const destinationOrganizationField = getByLabelText("Destination Organization");
+        const destinationRepositoryField = getByLabelText("Destination Repository");
+        const destinationButton = getByTestId("DestinationForm-Submit-Button");
+
+        fireEvent.change(destinationOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
+        fireEvent.change(destinationRepositoryField, { target: { value: 'HappierCows' } })
+        fireEvent.click(destinationButton);
+
+        await waitFor(() => expect(getByText("R_dummy_id", {exact: false})).toBeInTheDocument());
+
+        await waitFor(() => expect(getByLabelText("New Project Name")).toBeInTheDocument());
+        const projectNameField = getByLabelText("New Project Name");
+        const copyProjectButton = getByTestId("CopyProjectForm-Submit-Button");
+
+        fireEvent.change(projectNameField, { target: { value: 'Test project name' } })
+        fireEvent.click(copyProjectButton);
+
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("Started \"Copy Board\" job with id: 12");
     });
 
     test("When you fill in the source form and click submit, returns 500 error", async () => {
+        const mockToast = jest.spyOn(toast, 'error').mockImplementation();
+
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkSource").reply(500);
 
@@ -112,37 +145,9 @@ describe("HomePage tests", () => {
         expect(mockToast.mock.calls[1][0]).toEqual("Error: Request failed with status code 500");
     });
 
-    test("When you fill in form the destination form and click submit, the right things happens", async () => {
-        const expectedDestinationInfo = {
-            org: "ucsb-cs156-w22",
-            repo: "HappierCows",
-            repositoryId: "R_dummy_id"
-        };
-        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
-        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "ucsb-cs156-w22", repo: "HappierCows"} }).reply(200, expectedDestinationInfo);
-
-        const { getByText, getByLabelText, getByTestId } = render(
-            <QueryClientProvider client={queryClient}>
-                <MemoryRouter>
-                    <HomePage />
-                </MemoryRouter>
-            </QueryClientProvider>
-        );
-
-        await waitFor(() => expect(getByLabelText("Destination Organization")).toBeInTheDocument());
-        const destinationOrganizationField = getByLabelText("Destination Organization");
-        const destinationRepositoryField = getByLabelText("Destination Repository");
-        const destinationButton = getByTestId("DestinationForm-Submit-Button");
-
-
-        fireEvent.change(destinationOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
-        fireEvent.change(destinationRepositoryField, { target: { value: 'HappierCows' } })
-        fireEvent.click(destinationButton);
-
-        await waitFor(() => expect(getByText("R_dummy_id", {exact: false})).toBeInTheDocument());
-    });
-
     test("When you fill in the destination form and click submit, returns 500 error", async () => {
+        const mockToast = jest.spyOn(toast, 'error').mockImplementation();
+
         axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
         axiosMock.onGet("/api/gh/checkDestination", { params: { org: "fakeOrg", repo: "fakeRepo" } }).reply(500);
 
@@ -168,10 +173,10 @@ describe("HomePage tests", () => {
         expect(mockToast.mock.calls[1][0]).toEqual("Error: Request failed with status code 500");
     });
 
-    test("When you fill in form and click submit, the right things happens project name", async () => {
-        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
+    test("When you fill in form and click submit, no source or destination set, error toast appears", async () => {
+        const mockToast = jest.spyOn(toast, 'error').mockImplementation();
 
-        const consoleLogMock = jest.spyOn(console, 'log').mockImplementation();
+        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
 
         const { getByLabelText, getByTestId } = render(
             <QueryClientProvider client={queryClient}>
@@ -188,17 +193,97 @@ describe("HomePage tests", () => {
         fireEvent.change(projectNameField, { target: { value: 'Test project name' } })
         fireEvent.click(copyProjectButton);
 
-
-        const expectedProjectInfo = {
-            projName: "Test project name",
-        };
-
-        await waitFor(() => expect(consoleLogMock).toHaveBeenCalledTimes(1));
-        expect(console.log.mock.calls[0][0]).toEqual(expectedProjectInfo);
-
-        consoleLogMock.mockRestore();
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("A valid Source Project and Destination Repository must be set");
     });
 
+    test("When you fill in form and click submit, only source set, error toast appears", async () => {
+        const mockToast = jest.spyOn(toast, 'error').mockImplementation();
+
+        const expectedSourceInfo = {
+            org: "ucsb-cs156-w22",
+            repo: "HappierCows",
+            projectNum: 1,
+            projectId: "PRO_dummy_id",
+        };
+
+        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
+        axiosMock.onGet("/api/gh/checkSource", { params: { org: "ucsb-cs156-w22", repo: "HappierCows", projNum: "1"} })
+        .reply(200, expectedSourceInfo);
+
+        const { getByLabelText, getByTestId, getByText } = render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <HomePage />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => expect(getByLabelText("Source Organization")).toBeInTheDocument());
+        const sourceOrganizationField = getByLabelText("Source Organization");
+        const sourceRepositoryField = getByLabelText("Source Repository");
+        const sourceProjectNumberField = getByLabelText("Source Project Number");
+        const sourceButton = getByTestId("SourceForm-Submit-Button");
+
+        fireEvent.change(sourceOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
+        fireEvent.change(sourceRepositoryField, { target: { value: 'HappierCows' } })
+        fireEvent.change(sourceProjectNumberField, { target: { value: '1' } })
+        fireEvent.click(sourceButton);
+
+        await waitFor(() => expect(getByText("PRO_dummy_id", {exact: false})).toBeInTheDocument());
+
+        await waitFor(() => expect(getByLabelText("New Project Name")).toBeInTheDocument());
+        const projectNameField = getByLabelText("New Project Name");
+        const copyProjectButton = getByTestId("CopyProjectForm-Submit-Button");
+
+        fireEvent.change(projectNameField, { target: { value: 'Test project name' } })
+        fireEvent.click(copyProjectButton);
+
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("A valid Source Project and Destination Repository must be set");
+    });
+
+    test("When you fill in form and click submit, with only destination set, error toast appears", async () => {
+        const mockToast = jest.spyOn(toast, 'error').mockImplementation();
+
+        const expectedDestinationInfo = {
+            org: "ucsb-cs156-w22",
+            repo: "HappierCows",
+            repositoryId: "R_dummy_id"
+        };
+
+        axiosMock.onGet("/api/currentUser").reply(200, apiCurrentUserFixtures.userOnly);
+        axiosMock.onGet("/api/gh/checkDestination", { params: { org: "ucsb-cs156-w22", repo: "HappierCows"} }).reply(200, expectedDestinationInfo);
+
+        const { getByLabelText, getByTestId, getByText } = render(
+            <QueryClientProvider client={queryClient}>
+                <MemoryRouter>
+                    <HomePage />
+                </MemoryRouter>
+            </QueryClientProvider>
+        );
+
+        await waitFor(() => expect(getByLabelText("Destination Organization")).toBeInTheDocument());
+        const destinationOrganizationField = getByLabelText("Destination Organization");
+        const destinationRepositoryField = getByLabelText("Destination Repository");
+        const destinationButton = getByTestId("DestinationForm-Submit-Button");
+
+        fireEvent.change(destinationOrganizationField, { target: { value: 'ucsb-cs156-w22' } })
+        fireEvent.change(destinationRepositoryField, { target: { value: 'HappierCows' } })
+        fireEvent.click(destinationButton);
+
+        await waitFor(() => expect(getByText("R_dummy_id", {exact: false})).toBeInTheDocument());
+
+        await waitFor(() => expect(getByLabelText("New Project Name")).toBeInTheDocument());
+        const projectNameField = getByLabelText("New Project Name");
+        const copyProjectButton = getByTestId("CopyProjectForm-Submit-Button");
+
+        fireEvent.change(projectNameField, { target: { value: 'Test project name' } })
+        fireEvent.click(copyProjectButton);
+
+        await waitFor(() => expect(mockToast).toHaveBeenCalledTimes(1));
+        expect(mockToast.mock.calls[0][0]).toEqual("A valid Source Project and Destination Repository must be set");
+    });
 });
 
 

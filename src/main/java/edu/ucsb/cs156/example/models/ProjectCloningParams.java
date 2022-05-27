@@ -6,4 +6,5 @@ import lombok.Data;
 public class ProjectCloningParams {
   private String fromProjectId;
   private String toRepoId;
+  private String boardName;
 }

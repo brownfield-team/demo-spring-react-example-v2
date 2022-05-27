@@ -9,18 +9,7 @@ describe(CopyProjectForm, () => {
     await waitFor(() => expect(getByText(/Populate Kanban Board/)).toBeInTheDocument());
   });
 
-  it("has Correct Error messsages on missing input", async () => {
-    const onSubmit = jest.fn();
-    await act(async () => render(<CopyProjectForm onSubmit={onSubmit} />));
-
-    userEvent.click(screen.getByRole("button"));
-
-    expect(await screen.findByText(/New Project Name is required/)).toBeInTheDocument();
-
-    expect(onSubmit).not.toBeCalled();
-  });
-
-  it("calls the onSubmit callback with valid inputs", async () => {
+  it("calls the onSubmit callback with any input", async () => {
     const onSubmit = jest.fn();
     await act(async () => render(<CopyProjectForm onSubmit={onSubmit} />));
 
