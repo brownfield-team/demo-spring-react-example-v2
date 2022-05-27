@@ -3,6 +3,7 @@ package edu.ucsb.cs156.example;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,6 +31,11 @@ public abstract class ControllerTestCase {
 
   @Autowired
   public ObjectMapper mapper;
+
+  @SneakyThrows
+  protected String asJsonString(Object obj) {
+    return mapper.writeValueAsString(obj);
+  }
 
   protected Map<String, Object> responseToJson(MvcResult result) throws UnsupportedEncodingException, JsonProcessingException {
     String responseString = result.getResponse().getContentAsString();
