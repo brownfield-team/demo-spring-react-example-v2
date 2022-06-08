@@ -1,1 +1,1 @@
-release: LIQUIBASE_URL=$JDBC_DATABASE_URL mvn liquibase:update
+release: ./mvnw liquibase:update -Dliquibase.promptOnNonLocalDatabase=false -Dliquibase.url="$JDBC_DATABASE_URL"
