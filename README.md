@@ -23,7 +23,8 @@ will likely see an error such as:
 * Open *two separate terminal windows*  
 * In the first window, start up the backend with:
   ``` 
-  mvn spring-boot:run
+  ./mvnw liquibase:update  # only on first run or when the database schema changes
+  ./mvnw spring-boot:run
   ```
 * In the second window:
   ```
@@ -60,6 +61,11 @@ If you get the following message on Heroku, it probably means that you failed to
 ```
 Failed to connect to the frontend server... On Heroku, be sure that PRODUCTION is defined.  On localhost, open a second terminal window, cd into frontend and type: npm install; npm start";
 ```
+
+# Liquibase
+
+This project uses Liquibase to manage the structure of the database.
+See [the CS156 topics page](https://ucsb-cs156.github.io/topics/liquibase/) for more information.
 
 # Accessing swagger
 
